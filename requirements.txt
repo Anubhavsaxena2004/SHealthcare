@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+joblib
+scikit-learn
+pandas
+python-dotenv
+psycopg2-binary
+reportlab

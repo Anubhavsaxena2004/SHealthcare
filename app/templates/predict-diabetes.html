@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="card p-8">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                </path>
+            </svg>
+            Diabetes Prediction
+        </h2>
+
+        <form action="{{ url_for('main.predict_diabetes') }}" method="POST"
+            class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Pregnancies -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Pregnancies</label>
+                <input type="number" name="pregnancies" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Glucose -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Glucose Level</label>
+                <input type="number" step="0.1" name="glucose" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Blood Pressure -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Blood Pressure</label>
+                <input type="number" step="0.1" name="bp" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Skin Thickness -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Skin Thickness</label>
+                <input type="number" step="0.1" name="skin_thickness" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Insulin -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Insulin Level</label>
+                <input type="number" step="0.1" name="insulin" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- BMI -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">BMI</label>
+                <input type="number" step="0.1" name="bmi" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Diabetes Pedigree Function -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Diabetes Pedigree Function</label>
+                <input type="number" step="0.001" name="dpf" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <!-- Age -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Age</label>
+                <input type="number" name="age" required
+                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-medical-500 focus:ring-medical-500 border p-2">
+            </div>
+
+            <div class="md:col-span-2 pt-4">
+                <button type="submit"
+                    class="w-full bg-medical-600 text-white py-3 px-4 rounded-md hover:bg-medical-700 transition-colors font-bold text-lg shadow-lg">
+                    Analyze Risk
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-20">
+    <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight">
+        Advanced Predictive<br>
+        <span class="text-medical-600">Healthcare Analytics</span>
+    </h1>
+    <p class="mt-4 text-xl text-slate-600 max-w-2xl mx-auto">
+        Early detection saves lives. Our AI-driven system analyzes your health metrics to predict potential risks of
+        Diabetes and Heart Disease with medical-grade accuracy.
+    </p>
+    <div class="mt-8 flex justify-center space-x-4">
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('main.dashboard') }}"
+            class="bg-medical-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-medical-500 transition-colors shadow-lg shadow-medical-500/30">
+            Go to Dashboard
+        </a>
+        {% else %}
+        <a href="{{ url_for('main.signup') }}"
+            class="bg-medical-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-medical-500 transition-colors shadow-lg shadow-medical-500/30">
+            Get Started
+        </a>
+        <a href="{{ url_for('main.login') }}"
+            class="bg-white text-medical-600 border border-medical-200 px-8 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors">
+            Login
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="card p-6">
+            <div
+                class="w-12 h-12 bg-medical-100 rounded-lg flex items-center justify-center mb-4 mx-auto text-medical-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900">AI-Powered Predictions</h3>
+            <p class="mt-2 text-slate-600 text-sm">Utilizing advanced machine learning models (Random Forest) to assess
+                health risks instantly.</p>
+        </div>
+        <div class="card p-6">
+            <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4 mx-auto text-teal-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900">Preventive Measures</h3>
+            <p class="mt-2 text-slate-600 text-sm">Receive personalized, actionable medical advice based on your
+                specific risk profile.</p>
+        </div>
+        <div class="card p-6">
+            <div
+                class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 mx-auto text-indigo-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900">Medical Reports</h3>
+            <p class="mt-2 text-slate-600 text-sm">Download comprehensive PDF reports of your health assessments for
+                your doctor.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

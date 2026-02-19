@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-slate-900">Select Assessment</h1>
+        <p class="mt-4 text-slate-600">Choose a health condition to analyze. Our AI models will process your inputs to
+            provide an instant risk assessment.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Heart Disease Card -->
+        <div class="card p-8 text-center hover:scale-105 transition-transform duration-300 cursor-pointer border hover:border-red-200"
+            onclick="document.getElementById('heart-form').submit()">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Heart Disease</h3>
+            <p class="text-slate-500 mb-6">Analyze cardiovascular health indicators including blood pressure,
+                cholesterol, and ECG results.</p>
+            <form id="heart-form" action="{{ url_for('main.select_disease') }}" method="POST">
+                <input type="hidden" name="disease" value="Heart Disease">
+                <button type="submit"
+                    class="w-full bg-white text-red-500 border border-red-200 py-2 px-4 rounded-md hover:bg-red-50 font-medium transition-colors">
+                    Analyze Heart Health
+                </button>
+            </form>
+        </div>
+
+        <!-- Diabetes Card -->
+        <div class="card p-8 text-center hover:scale-105 transition-transform duration-300 cursor-pointer border hover:border-blue-200"
+            onclick="document.getElementById('diabetes-form').submit()">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Diabetes</h3>
+            <p class="text-slate-500 mb-6">Assess type 2 diabetes risk based on glucose levels, insulin, BMI, and family
+                history.</p>
+            <form id="diabetes-form" action="{{ url_for('main.select_disease') }}" method="POST">
+                <input type="hidden" name="disease" value="Diabetes">
+                <button type="submit"
+                    class="w-full bg-white text-blue-500 border border-blue-200 py-2 px-4 rounded-md hover:bg-blue-50 font-medium transition-colors">
+                    Analyze Diabetes Risk
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
