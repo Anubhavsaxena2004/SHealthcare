@@ -14,6 +14,7 @@ logs/
 *.sqlite
 users.db
 instance/
+app/reports/
 .vscode/
 .idea/
 .DS_Store

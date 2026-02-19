@@ -4,14 +4,18 @@ from io import BytesIO
 import joblib
 import os
 import numpy as np
+import math
 
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+except Exception:  # pragma: no cover
+    genai = None
 from flask import current_app
 
 # Configure Gemini
 def configure_genai():
     api_key = os.getenv('GEMINI_API_KEY')
-    if api_key:
+    if genai and api_key:
         genai.configure(api_key=api_key)
 
 # System Prompt for Wellness Assistant
@@ -28,6 +32,8 @@ Traits:
 
 def get_ai_response(user_message, history=[]):
     try:
+        if not genai:
+            return "AI service is not installed/configured on this server. Please try again later."
         configure_genai()
         model = genai.GenerativeModel('gemini-pro')
         
@@ -52,8 +58,9 @@ def get_ai_response(user_message, history=[]):
         return "I'm having a little trouble connecting right now. Please try again in a moment."
 
 # Load models
-# Hardcoded for debugging
-MODEL_DIR = r'c:/Users/anubh/Downloads/diabetes-heart-prediction-main/diabetes-heart-prediction-main/models'
+# Prefer local repo model artifacts, overridable via MODEL_DIR env var.
+DEFAULT_MODEL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+MODEL_DIR = os.getenv('MODEL_DIR', DEFAULT_MODEL_DIR)
 
 try:
     heart_model = joblib.load(os.path.join(MODEL_DIR, 'heart_model.pkl'))
@@ -158,16 +165,54 @@ def generate_pdf_report(result_data):
     return buffer
 
 def predict_heart_risk(input_data):
-    if heart_model:
-        # Prediction logic
-        prediction = heart_model.predict([input_data])[0]
-        probability = heart_model.predict_proba([input_data])[0][1] # Probability of class 1
-        return prediction, probability
-    return None, 0.0
+    if not heart_model:
+        return None, 0.0
+    prediction = heart_model.predict([input_data])[0]
+    probability = _safe_model_probability(heart_model, [input_data], prediction=prediction)
+    return prediction, probability
 
 def predict_diabetes_risk(input_data):
-    if diabetes_model:
-        prediction = diabetes_model.predict([input_data])[0]
-        probability = diabetes_model.predict_proba([input_data])[0][1]
-        return prediction, probability
-    return None, 0.0
+    if not diabetes_model:
+        return None, 0.0
+    prediction = diabetes_model.predict([input_data])[0]
+    probability = _safe_model_probability(diabetes_model, [input_data], prediction=prediction)
+    return prediction, probability
+
+
+def _safe_model_probability(model, X, prediction=None) -> float:
+    """
+    Return a best-effort probability for class 1 in [0, 1].
+
+    Handles models that don't expose predict_proba (e.g., SVC trained with probability=False).
+    Falls back to sigmoid(decision_function) when available, otherwise a hard 0/1.
+    """
+    try:
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(X)
+            # Binary classifiers typically return shape (n, 2).
+            if hasattr(proba, "__len__") and len(proba) > 0 and len(proba[0]) >= 2:
+                p1 = float(proba[0][1])
+                return max(0.0, min(1.0, p1))
+            # Some estimators may return (n,) for positive class.
+            p = float(proba[0])
+            return max(0.0, min(1.0, p))
+    except Exception:
+        pass
+
+    try:
+        if hasattr(model, "decision_function"):
+            score = model.decision_function(X)
+            s = float(score[0] if hasattr(score, "__len__") else score)
+            # Map to (0,1) via sigmoid; not calibrated but monotonic.
+            p = 1.0 / (1.0 + math.exp(-s))
+            return max(0.0, min(1.0, float(p)))
+    except Exception:
+        pass
+
+    # Final fallback: derive from predicted label.
+    try:
+        if prediction is None:
+            prediction = model.predict(X)[0]
+        return 1.0 if int(prediction) == 1 else 0.0
+    except Exception:
+        return 0.0

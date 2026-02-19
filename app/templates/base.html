@@ -103,6 +103,10 @@
                     {% if session.get('user_id') %}
                     <a href="{{ url_for('main.dashboard') }}"
                         class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</a>
+                    {% if session.get('role') == 'doctor' %}
+                    <a href="{{ url_for('main.doctor_dashboard') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Doctor</a>
+                    {% endif %}
                     <a href="{{ url_for('main.precautions') }}"
                         class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Precautions</a>
                     <a href="{{ url_for('main.doctors') }}"
@@ -118,6 +122,8 @@
                     <a href="{{ url_for('main.signup') }}"
                         class="bg-medical-600 text-white hover:bg-medical-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Sign
                         Up</a>
+                    <a href="{{ url_for('main.doctor_register') }}"
+                        class="text-slate-600 hover:text-medical-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Register as Doctor</a>
                     {% endif %}
 
                     <!-- Dark Mode Toggle -->

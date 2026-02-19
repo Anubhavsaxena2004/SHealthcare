@@ -6,6 +6,7 @@ class User(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='patient')  # 'patient' | 'doctor'
 
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,4 +47,60 @@ class Doctor(db.Model):
     hospital = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(20), nullable=False)
     image = db.Column(db.String(200), nullable=True) # URL or path
+
+
+class DoctorProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False, index=True)
+    specialization = db.Column(db.String(100), nullable=False)
+    experience_years = db.Column(db.Integer, nullable=False, default=0)
+    hospital = db.Column(db.String(200), nullable=False, default='')
+    contact_number = db.Column(db.String(20), nullable=False, default='')
+    license_number = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    user = db.relationship('User', backref=db.backref('doctor_profile', uselist=False))
+
+
+class PatientReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    result_id = db.Column(db.Integer, db.ForeignKey('result.id'), nullable=False, unique=True, index=True)
+    disease_type = db.Column(db.String(50), nullable=False)
+    risk_score = db.Column(db.Float, nullable=False)
+    report_file_path = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    patient = db.relationship('User', foreign_keys=[patient_id])
+    result = db.relationship('Result')
+
+
+class DoctorReviewRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending|accepted|rejected|completed
+
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    report_id = db.Column(db.Integer, db.ForeignKey('patient_report.id'), nullable=False, index=True)
+
+    doctor_notes = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    patient = db.relationship('User', foreign_keys=[patient_id], backref=db.backref('sent_review_requests', lazy='dynamic'))
+    doctor = db.relationship('User', foreign_keys=[doctor_id], backref=db.backref('received_review_requests', lazy='dynamic'))
+    report = db.relationship('PatientReport')
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    user = db.relationship('User', backref=db.backref('notifications', lazy='dynamic'))
 

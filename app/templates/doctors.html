@@ -34,9 +34,16 @@
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
                 </div>
-                <span
-                    class="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs px-2 py-1 rounded-full font-medium">{{
-                    doctor.specialization }}</span>
+                <div class="flex items-center gap-2">
+                  <span
+                      class="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs px-2 py-1 rounded-full font-medium">{{
+                      doctor.specialization }}</span>
+                  {% if doctor.is_verified %}
+                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">Verified</span>
+                  {% else %}
+                    <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-semibold">Pending</span>
+                  {% endif %}
+                </div>
             </div>
 
             <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-1">Dr. {{ doctor.name }}</h3>
@@ -61,10 +68,31 @@
                 </div>
             </div>
 
-            <button
-                class="mt-auto w-full py-2 bg-gradient-to-r from-medical-600 to-teal-500 hover:from-medical-700 hover:to-teal-600 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg">
-                Book Consultation
-            </button>
+            {% if session.get('user_id') and doctor.doctor_user_id and latest_result_id and doctor.is_verified %}
+              <button
+                  onclick="requestReview({{ doctor.doctor_user_id }})"
+                  class="mt-auto w-full py-2 bg-gradient-to-r from-medical-600 to-teal-500 hover:from-medical-700 hover:to-teal-600 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg">
+                  Request Review
+              </button>
+              <p class="mt-2 text-xs text-slate-500">Uses your latest report (Result #{{ latest_result_id }}).</p>
+            {% elif session.get('user_id') and doctor.doctor_user_id and latest_result_id and not doctor.is_verified %}
+              <button disabled
+                  class="mt-auto w-full py-2 bg-slate-300 text-slate-600 rounded-lg font-medium cursor-not-allowed">
+                  Request Review (doctor not verified)
+              </button>
+              <p class="mt-2 text-xs text-slate-500">This doctor profile is pending verification.</p>
+            {% elif session.get('user_id') and doctor.doctor_user_id and not latest_result_id %}
+              <button disabled
+                  class="mt-auto w-full py-2 bg-slate-300 text-slate-600 rounded-lg font-medium cursor-not-allowed">
+                  Request Review (needs a report)
+              </button>
+              <p class="mt-2 text-xs text-slate-500">Complete an assessment first to generate a report.</p>
+            {% else %}
+              <button
+                  class="mt-auto w-full py-2 bg-gradient-to-r from-medical-600 to-teal-500 hover:from-medical-700 hover:to-teal-600 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg">
+                  Book Consultation
+              </button>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -78,6 +106,27 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+  async function requestReview(doctorUserId) {
+    const latestResultId = {{ (latest_result_id or 0) | int }};
+    if (!latestResultId) {
+      alert('Please complete an assessment first.');
+      return;
+    }
+    const res = await fetch('/api/request-review/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ doctor_user_id: doctorUserId, result_id: latestResultId })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(data.error || 'Failed to create request');
+      return;
+    }
+    alert('Review request sent. Track status in your dashboard.');
+  }
+</script>
 
 <style>
     .animate-fade-in-up {

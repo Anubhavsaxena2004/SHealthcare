@@ -1,5 +1,8 @@
 import os
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+except Exception:  # pragma: no cover
+    genai = None
 from app.models import Result, User
 from app import db
 from datetime import datetime
@@ -7,11 +10,14 @@ from datetime import datetime
 class HealthcareChatbot:
     def __init__(self):
         self.api_key = os.getenv('GEMINI_API_KEY')
-        if self.api_key:
+        if genai and self.api_key:
             genai.configure(api_key=self.api_key)
             self.model = genai.GenerativeModel('gemini-pro')
         else:
-            print("Warning: GEMINI_API_KEY not found.")
+            if not genai:
+                print("Warning: google-generativeai not installed; chatbot AI disabled.")
+            else:
+                print("Warning: GEMINI_API_KEY not found.")
             self.model = None
 
     def get_conversation_context(self, user_id):

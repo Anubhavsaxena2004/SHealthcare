@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900">Doctor Dashboard</h1>
+      <p class="mt-2 text-slate-600">Manage incoming review requests and notify patients with clinical notes.</p>
+      {% if profile %}
+      <p class="mt-1 text-sm text-slate-500">
+        <span class="font-semibold">Profile:</span> {{ profile.specialization }} • {{ profile.hospital or "—" }}
+        • Verification:
+        {% if profile.is_verified %}
+          <span class="text-green-600 font-semibold">Verified</span>
+        {% else %}
+          <span class="text-yellow-600 font-semibold">Pending</span>
+        {% endif %}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="card p-6 mb-8">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-bold text-slate-900">Notifications</h2>
+    </div>
+    {% if notifications %}
+      <ul class="space-y-2">
+        {% for n in notifications %}
+          <li class="text-sm text-slate-700 flex items-center justify-between gap-3">
+            <span>
+              {% if not n.is_read %}<span class="inline-block w-2 h-2 rounded-full bg-medical-600 mr-2"></span>{% endif %}
+              {{ n.message }}
+            </span>
+            <span class="text-xs text-slate-500">{{ n.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '' }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-slate-500">No notifications yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Review Requests -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold text-slate-900">Incoming Review Requests</h2>
+      <span class="text-sm text-slate-500">Showing latest {{ review_requests|length }}</span>
+    </div>
+
+    {% if review_requests %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left text-slate-500 border-b">
+            <th class="py-2 pr-4">Request</th>
+            <th class="py-2 pr-4">Patient</th>
+            <th class="py-2 pr-4">Disease</th>
+            <th class="py-2 pr-4">Risk</th>
+            <th class="py-2 pr-4">Status</th>
+            <th class="py-2 pr-4">Updated</th>
+            <th class="py-2 pr-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y">
+          {% for r in review_requests %}
+          <tr>
+            <td class="py-3 pr-4 font-medium text-slate-900">#{{ r.id }}</td>
+            <td class="py-3 pr-4 text-slate-700">{{ r.patient_username }}</td>
+            <td class="py-3 pr-4 text-slate-700">{{ r.disease_type or '—' }}</td>
+            <td class="py-3 pr-4 text-slate-700">{% if r.risk_score is not none %}{{ '%.2f'|format(r.risk_score) }}{% else %}—{% endif %}</td>
+            <td class="py-3 pr-4">
+              {% if r.status == 'pending' %}
+                <span class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">Pending</span>
+              {% elif r.status == 'accepted' %}
+                <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Accepted</span>
+              {% elif r.status == 'completed' %}
+                <span class="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Completed</span>
+              {% else %}
+                <span class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Rejected</span>
+              {% endif %}
+            </td>
+            <td class="py-3 pr-4 text-slate-600">{{ r.updated_at.strftime('%Y-%m-%d %H:%M') if r.updated_at else '' }}</td>
+            <td class="py-3 pr-4">
+              <div class="flex flex-wrap gap-2">
+                {% if r.status == 'pending' %}
+                <button class="px-3 py-1 rounded bg-blue-600 text-white text-xs font-semibold" onclick="acceptRequest({{ r.id }})">Accept</button>
+                <button class="px-3 py-1 rounded bg-red-600 text-white text-xs font-semibold" onclick="rejectRequest({{ r.id }})">Reject</button>
+                {% endif %}
+
+                {% if r.status in ['accepted', 'completed'] %}
+                <a class="px-3 py-1 rounded bg-slate-900 text-white text-xs font-semibold" href="/api/review-request/{{ r.id }}/report" target="_blank">View Report</a>
+                <button class="px-3 py-1 rounded bg-medical-600 text-white text-xs font-semibold" onclick="submitReview({{ r.id }})">Submit Review</button>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-sm text-slate-500">No incoming review requests yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  async function acceptRequest(requestId) {
+    const res = await fetch('/api/doctor/accept/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request_id: requestId })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to accept');
+      return;
+    }
+    location.reload();
+  }
+
+  async function rejectRequest(requestId) {
+    const reason = prompt('Optional: rejection reason for patient (will be saved as notes).') || '';
+    const res = await fetch('/api/doctor/reject/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request_id: requestId, reason })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to reject');
+      return;
+    }
+    location.reload();
+  }
+
+  async function submitReview(requestId) {
+    const doctorNotes = prompt('Enter review notes to send to the patient. This will mark the request as completed.');
+    if (!doctorNotes || !doctorNotes.trim()) return;
+
+    const res = await fetch('/api/doctor/submit-review/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request_id: requestId, doctor_notes: doctorNotes, mark_completed: true })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to submit review');
+      return;
+    }
+    location.reload();
+  }
+</script>
+{% endblock %}
+
