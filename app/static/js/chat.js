@@ -7,6 +7,16 @@ const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
 const chatForm = document.querySelector('#chat-widget form');
 const suggestionsContainer = document.getElementById('chat-suggestions');
+const chatSendButton = document.getElementById('chat-send');
+
+let isSending = false;
+
+function syncSendState() {
+    const hasText = !!(chatInput && chatInput.value && chatInput.value.trim().length > 0);
+    if (chatSendButton) {
+        chatSendButton.disabled = !hasText || isSending;
+    }
+}
 
 // Toggle Chat Window
 window.toggleChat = function () {
@@ -16,6 +26,7 @@ window.toggleChat = function () {
         chatWindow.classList.add('scale-100', 'opacity-100');
         loadSuggestions();
         setTimeout(() => chatInput.focus(), 100);
+        syncSendState();
     } else {
         chatWindow.classList.add('scale-95', 'opacity-0');
         chatWindow.classList.remove('scale-100', 'opacity-100');
@@ -24,26 +35,36 @@ window.toggleChat = function () {
 
 // Handle Message Submission
 async function handleChatMore(message) {
-    if (!message) return;
+    if (!message || isSending) return;
+    isSending = true;
+    syncSendState();
 
     // Render User Message
     renderMessage(chatMessages, { content: message, type: "text" }, "user");
     chatInput.value = '';
+    syncSendState();
 
     // Check FAQ First
     const faqResponse = getFAQResponse(message);
     if (faqResponse) {
         setTimeout(() => {
             renderMessage(chatMessages, faqResponse, "bot");
+            isSending = false;
+            syncSendState();
         }, 500); // Small delay for natural feel
         return;
     }
 
     // Fallback to AI
     showTyping(chatMessages);
-    const aiResponse = await sendToAI(message);
-    removeTyping();
-    renderMessage(chatMessages, aiResponse, "bot");
+    try {
+        const aiResponse = await sendToAI(message);
+        removeTyping();
+        renderMessage(chatMessages, aiResponse, "bot");
+    } finally {
+        isSending = false;
+        syncSendState();
+    }
 }
 
 // Event Listener for Form
@@ -52,6 +73,10 @@ chatForm.addEventListener('submit', (e) => {
     const message = chatInput.value.trim();
     handleChatMore(message);
 });
+
+// Enable/disable send button based on text
+chatInput.addEventListener('input', syncSendState);
+syncSendState();
 
 // Load Suggestions
 function loadSuggestions() {

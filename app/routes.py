@@ -39,6 +39,57 @@ def _notify(user_id: int, message: str):
     return n
 
 
+def _result_inputs_for_report(result: Result):
+    """
+    Return a list of (label, value) pairs to embed in the PDF report,
+    reflecting the exact fields the user entered for the prediction.
+    """
+    disease = (result.disease_selected or result.disease or "").lower()
+
+    def yn(v):
+        if v is None:
+            return None
+        try:
+            return "Yes" if int(v) == 1 else "No"
+        except Exception:
+            return v
+
+    def sex_label(v):
+        if v is None:
+            return None
+        try:
+            return "Male" if int(v) == 1 else "Female"
+        except Exception:
+            return v
+
+    if "heart" in disease:
+        return [
+            ("Age", result.age),
+            ("Sex", sex_label(result.sex)),
+            ("Chest pain type (cp)", result.cp),
+            ("Resting blood pressure (trestbps)", result.trestbps),
+            ("Cholesterol (chol)", result.chol),
+            ("Fasting blood sugar > 120 mg/dl (fbs)", yn(result.fbs)),
+            ("Resting ECG (restecg)", result.restecg),
+            ("Max heart rate achieved (thalach)", result.thalach),
+            ("Exercise induced angina (exang)", yn(result.exang)),
+            ("ST depression (oldpeak)", result.oldpeak),
+            ("Slope (slope)", result.slope),
+        ]
+
+    # Default to diabetes fields when not heart
+    return [
+        ("Pregnancies", result.pregnancies),
+        ("Glucose", result.glucose),
+        ("Blood pressure (bp)", result.bp),
+        ("Skin thickness", result.skin_thickness),
+        ("Insulin", result.insulin),
+        ("BMI", result.bmi),
+        ("Diabetes pedigree function (dpf)", result.dpf),
+        ("Age", result.age),
+    ]
+
+
 def _ensure_report_for_result(result: Result) -> PatientReport:
     report = PatientReport.query.filter_by(result_id=result.id).first()
     if report:
@@ -61,11 +112,12 @@ def _ensure_report_for_result(result: Result) -> PatientReport:
         pdf_path = os.path.join(reports_dir, f"health_report_{result.id}.pdf")
         if not os.path.exists(pdf_path):
             data = {
-                "username": session.get('username', 'N/A'),
+                "username": User.query.get(result.user_id).username if User.query.get(result.user_id) else session.get('username', 'N/A'),
                 "date": result.timestamp.strftime('%Y-%m-%d %H:%M:%S') if result.timestamp else '',
                 "disease": result.disease,
                 "prediction": result.prediction,
                 "probability": result.probability,
+                "inputs": _result_inputs_for_report(result),
             }
             buf = generate_pdf_report(data)
             with open(pdf_path, 'wb') as f:
@@ -367,7 +419,8 @@ def download_report(result_id):
         "date": result.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         "disease": result.disease,
         "prediction": result.prediction,
-        "probability": result.probability
+        "probability": result.probability,
+        "inputs": _result_inputs_for_report(result),
     }
     
     pdf_buffer = generate_pdf_report(data)
@@ -806,6 +859,7 @@ def api_get_report_for_request(request_id: int):
         "disease": result.disease,
         "prediction": result.prediction,
         "probability": result.probability,
+        "inputs": _result_inputs_for_report(result),
     }
     pdf_buffer = generate_pdf_report(data)
     return send_file(pdf_buffer, as_attachment=False, download_name=f"health_report_{result.id}.pdf", mimetype='application/pdf')

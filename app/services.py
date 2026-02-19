@@ -155,6 +155,26 @@ def generate_pdf_report(result_data):
     p.drawString(50, height - 180, f"Prediction: {result_data.get('prediction')}")
     p.drawString(50, height - 200, f"Probability: {result_data.get('probability')}%")
 
+    # Inputs (what the user entered)
+    inputs = result_data.get('inputs') or []
+    y = height - 240
+    if inputs:
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "User Inputs")
+        y -= 18
+
+        p.setFont("Helvetica", 11)
+        for label, value in inputs:
+            if value is None or value == "":
+                continue
+            line = f"{label}: {value}"
+            if y <= 90:
+                p.showPage()
+                y = height - 60
+                p.setFont("Helvetica", 11)
+            p.drawString(60, y, line)
+            y -= 14
+
     # Disclaimer
     p.setFont("Helvetica-Oblique", 10)
     p.drawString(50, 50, "Disclaimer: This is an AI-generated report and not a substitute for professional medical advice.")

@@ -2,6 +2,7 @@ export function renderMessage(container, response, sender = "bot") {
     const messageDiv = document.createElement("div");
     messageDiv.className = `flex flex-col space-y-1 fade-in ${sender === 'user' ? 'items-end' : 'items-start'}`;
 
+    const shouldStickToBottom = isNearBottom(container);
     let innerHTML = '';
 
     if (sender === 'user') {
@@ -50,13 +51,13 @@ export function renderMessage(container, response, sender = "bot") {
     messageDiv.innerHTML = innerHTML;
     container.appendChild(messageDiv);
 
-    // Smooth scroll to new message
-    setTimeout(() => {
-        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 50);
+    if (shouldStickToBottom) {
+        scrollToBottom(container);
+    }
 }
 
 export function showTyping(container) {
+    const shouldStickToBottom = isNearBottom(container);
     const div = document.createElement('div');
     div.id = 'typing-indicator';
     div.className = 'flex items-end fade-in';
@@ -69,12 +70,26 @@ export function showTyping(container) {
         </div>
     `;
     container.appendChild(div);
-    setTimeout(() => {
-        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 50);
+    if (shouldStickToBottom) {
+        scrollToBottom(container);
+    }
 }
 
 export function removeTyping() {
     const typing = document.getElementById('typing-indicator');
     if (typing) typing.remove();
+}
+
+function isNearBottom(container) {
+    // Allow users to scroll up and read history without being pulled down.
+    const thresholdPx = 80;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    return distanceFromBottom <= thresholdPx;
+}
+
+function scrollToBottom(container) {
+    // Use rAF to ensure DOM layout includes the newly appended message.
+    requestAnimationFrame(() => {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    });
 }
