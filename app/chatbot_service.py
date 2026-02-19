@@ -195,7 +195,7 @@ class HealthcareChatbot:
                 "suggested_actions": ["Try Again", "Contact Support"]
             }
 
-    def handle_preventive_measures(self, user_id: int, disease_type: str = None) -> Dict:
+    def handle_preventive_measures(self, user_id: int, disease_type: Optional[str] = None) -> Dict:
         """
         Provide preventive measures clarification
         """
@@ -215,10 +215,11 @@ class HealthcareChatbot:
                     }
 
             # Normalize disease type
-            if "diabetes" in disease_type.lower():
-                disease_type = "diabetes"
-            elif "heart" in disease_type.lower():
-                disease_type = "heart_disease"
+            if isinstance(disease_type, str):
+                if "diabetes" in disease_type.lower():
+                    disease_type = "diabetes"
+                elif "heart" in disease_type.lower():
+                    disease_type = "heart_disease"
 
             if disease_type not in self.health_knowledge:
                 return {
@@ -227,6 +228,9 @@ class HealthcareChatbot:
                     "suggested_actions": ["Diabetes Prevention", "Heart Disease Prevention"]
                 }
 
+            # Ensure disease_type is a string for subsequent operations
+            assert isinstance(disease_type, str), "disease_type must be a string"
+            
             knowledge = self.health_knowledge[disease_type]
             risk_level = "Moderate"  # Default
 
@@ -330,7 +334,7 @@ class HealthcareChatbot:
             }
 
         # Fallback to OpenAI for general medical education
-        return None
+        return None  # type: ignore
 
     def handle_medical_prescription_block(self) -> Dict:
         """
@@ -373,7 +377,7 @@ class HealthcareChatbot:
             # Falls back to OpenAI if no direct match
 
         # Default to general AI
-        return None
+        return None  # type: ignore
 
     def process_general_chat(self, message: str) -> Dict:
         """
