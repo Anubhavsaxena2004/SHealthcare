@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-slate-800 dark:text-white mb-4">Preventive Healthcare & Early Protection</h1>
+        <p class="text-lg text-slate-600 dark:text-slate-300">Taking small steps today leads to a healthier tomorrow.
+        </p>
+    </div>
+
+    <!-- General Lifestyle Guidelines -->
+    <div class="mb-16">
+        <h2 class="text-2xl font-semibold text-slate-800 dark:text-white mb-6 flex items-center">
+            <span class="bg-teal-100 text-teal-600 p-2 rounded-full mr-3"><svg class="w-6 h-6" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg></span>
+            General Lifestyle Guidelines
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Diet -->
+            <div
+                class="card p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                <div
+                    class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4 text-3xl">
+                    🥗</div>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Balanced Diet</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Eat plenty of fruits, vegetables, and whole
+                    grains. Limit processed sugars.</p>
+            </div>
+            <!-- Exercise -->
+            <div
+                class="card p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                <div
+                    class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-4 text-3xl">
+                    🏃</div>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Daily Exercise</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Aim for at least 30 minutes of moderate activity
+                    like walking or jogging daily.</p>
+            </div>
+            <!-- Hydration -->
+            <div
+                class="card p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                <div
+                    class="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center text-cyan-600 mb-4 text-3xl">
+                    💧</div>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Hydration</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Drink 8-10 glasses of water daily to maintain body
+                    function and energy.</p>
+            </div>
+            <!-- Screening -->
+            <div
+                class="card p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                <div
+                    class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-4 text-3xl">
+                    🩺</div>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Regular Screening</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Get preventive checkups every 6 months to catch
+                    potential issues early.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disease-Specific Precautions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+        <!-- Diabetes -->
+        <div class="card p-8 border-l-4 border-blue-500">
+            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-4 flex items-center">
+                <span class="text-3xl mr-3">🩸</span> Diabetes Prevention
+            </h3>
+            <ul class="space-y-3 text-slate-600 dark:text-slate-300">
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Monitor blood sugar levels properly.</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Reduce intake of refined carbs and sugars.</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Maintain a healthy weight (BMI 18.5 - 24.9).</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Quit smoking and limit alcohol consumption.</li>
+            </ul>
+        </div>
+
+        <!-- Heart Disease -->
+        <div class="card p-8 border-l-4 border-red-500">
+            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-4 flex items-center">
+                <span class="text-3xl mr-3">❤️</span> Heart Health
+            </h3>
+            <ul class="space-y-3 text-slate-600 dark:text-slate-300">
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Control blood pressure and cholesterol.</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Reduce salt (sodium) intake in meals.</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Manage stress through yoga or meditation.</li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg> Get adequate sleep of 7-8 hours daily.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Emergency Box -->
+    <div
+        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center mb-4 md:mb-0">
+            <div
+                class="w-12 h-12 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center text-red-600 dark:text-red-200 text-2xl mr-4">
+                🚑</div>
+            <div>
+                <h3 class="font-bold text-lg text-red-700 dark:text-red-300">Emergency Warning</h3>
+                <p class="text-sm text-red-600 dark:text-red-400">Consult a doctor immediately if you experience severe
+                    chest pain, shortness of breath, or sudden dizziness.</p>
+            </div>
+        </div>
+        <a href="{{ url_for('main.doctors') }}"
+            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors shadow-sm whitespace-nowrap">
+            Find Doctors
+        </a>
+    </div>
+</div>
+
+<style>
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

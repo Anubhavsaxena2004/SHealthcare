@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,11 +38,52 @@
     <meta name="user-id" content="{{ session.get('user_id') }}">
     {% endif %}
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        /* Chat Widget Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hide scrollbar for suggestions */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
+
 <body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
 
     <!-- Navigation -->
@@ -51,23 +93,80 @@
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
                         <svg class="h-8 w-8 text-medical-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                         <span class="ml-2 font-bold text-xl text-slate-800">Smart Healthcare</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
                     {% if session.get('user_id') %}
-                        <a href="{{ url_for('main.dashboard') }}" class="text-slate-600 hover:text-medical-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                        <a href="{{ url_for('main.logout') }}" class="text-slate-600 hover:text-red-500 px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+                    <a href="{{ url_for('main.dashboard') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</a>
+                    <a href="{{ url_for('main.precautions') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Precautions</a>
+                    <a href="{{ url_for('main.doctors') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Doctors</a>
+                    <a href="{{ url_for('main.government_schemes') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Govt
+                        Schemes</a>
+                    <a href="{{ url_for('main.logout') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-red-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Logout</a>
                     {% else %}
-                        <a href="{{ url_for('main.login') }}" class="text-slate-600 hover:text-medical-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        <a href="{{ url_for('main.signup') }}" class="bg-medical-600 text-white hover:bg-medical-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Sign Up</a>
+                    <a href="{{ url_for('main.login') }}"
+                        class="text-slate-600 dark:text-slate-300 hover:text-medical-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                    <a href="{{ url_for('main.signup') }}"
+                        class="bg-medical-600 text-white hover:bg-medical-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Sign
+                        Up</a>
                     {% endif %}
+
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" onclick="toggleTheme()"
+                        class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus:outline-none">
+                        <!-- Sun Icon -->
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-yellow-500" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-slate-500" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
+
+    <script>
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Change the icons inside the button based on previous settings
+        if (document.documentElement.getAttribute('data-theme') === 'dark') {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        function toggleTheme() {
+            // Toggle icons
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // If is dark set light
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.theme = 'dark';
+            }
+        }
+    </script>
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -78,15 +177,18 @@
     <footer class="bg-white border-t border-slate-200 mt-auto">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <p class="text-center text-sm text-slate-500">
-                &copy; {{ datetime.utcnow().year if datetime else 2026 }} Smart Healthcare System. Medical-grade predictive analytics.
+                &copy; {{ datetime.utcnow().year if datetime else 2026 }} Smart Healthcare System. Medical-grade
+                predictive analytics.
             </p>
         </div>
     </footer>
 
     <!-- Healthcare AI Chatbot Widget -->
     {% if session.get('user_id') %}
-    {% include 'chatbot.html' %}
+    {% include 'components/chat_widget.html' %}
+    <script src="{{ url_for('static', filename='js/chat.js') }}?v=2"></script>
     {% endif %}
 
 </body>
+
 </html>

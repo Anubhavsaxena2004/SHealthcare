@@ -5,6 +5,52 @@ import joblib
 import os
 import numpy as np
 
+import google.generativeai as genai
+from flask import current_app
+
+# Configure Gemini
+def configure_genai():
+    api_key = os.getenv('GEMINI_API_KEY')
+    if api_key:
+        genai.configure(api_key=api_key)
+
+# System Prompt for Wellness Assistant
+SYSTEM_PROMPT = """
+You are a Calm AI Wellness Assistant embedded in a healthcare application. 
+Your goal is to provide empathetic, supportive, and grounded mental wellness support.
+Traits:
+- Tone: Calm, gentle, non-judgmental, purely supportive.
+- Style: Concise but warm. Use soft language.
+- Safety: If a user expresses self-harm or severe crisis, gently urge them to seek professional help immediately and provide a generic emergency disclaimer.
+- Context: You are part of the "Smart Healthcare Early Risk System".
+- Formatting: Use simple text, no markdown.
+"""
+
+def get_ai_response(user_message, history=[]):
+    try:
+        configure_genai()
+        model = genai.GenerativeModel('gemini-pro')
+        
+        # Construct chat history for Gemini
+        chat = model.start_chat(history=[])
+        
+        # Add system context (simulated via first message if system prompt not supported directly in this lib version cleanly as distinct role)
+        # Or better, just append to the message for a one-shot or maintain history structure
+        # tailored for the specific library version. usage of History in gemini python lib:
+        # history=[{'role': 'user', 'parts': ['msg']}, {'role': 'model', 'parts': ['msg']}]
+        
+        formatted_history = []
+        # Prepend system instruction as a user message context if needed, or rely on model instruction if available
+        # For simplicity in this stateless wrapper:
+        
+        full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {user_message}"
+        
+        response = model.generate_content(full_prompt)
+        return response.text
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return "I'm having a little trouble connecting right now. Please try again in a moment."
+
 # Load models
 # Hardcoded for debugging
 MODEL_DIR = r'c:/Users/anubh/Downloads/diabetes-heart-prediction-main/diabetes-heart-prediction-main/models'

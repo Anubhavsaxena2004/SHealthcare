@@ -12,7 +12,7 @@ class Result(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     disease = db.Column(db.String(50), nullable=False)
     prediction = db.Column(db.String(10), nullable=False)
-    probability = db.Column(db.Float, nullable=True)  # New field for charts
+    probability = db.Column(db.Float, nullable=True)
     disease_selected = db.Column(db.String(50), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -37,3 +37,13 @@ class Result(db.Model):
     insulin = db.Column(db.Float)
     bmi = db.Column(db.Float)
     dpf = db.Column(db.Float)
+
+class Doctor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    specialization = db.Column(db.String(100), nullable=False)
+    experience = db.Column(db.String(50), nullable=False)
+    hospital = db.Column(db.String(100), nullable=False)
+    contact = db.Column(db.String(20), nullable=False)
+    image = db.Column(db.String(200), nullable=True) # URL or path
+

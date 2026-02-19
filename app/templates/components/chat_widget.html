@@ -1,0 +1,73 @@
+<!-- Chat Widget -->
+<div id="chat-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Chat Window (Hidden by default) -->
+    <div id="chat-window"
+        class="hidden flex-col w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden mb-4 transition-all duration-300 transform scale-95 opacity-0 origin-bottom-right">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-medical-600 to-teal-500 p-4 flex justify-between items-center text-white">
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <h3 class="font-semibold text-sm">Calm AI Assistant</h3>
+            </div>
+            <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded-full text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+            <!-- Welcome Message -->
+            <div class="flex flex-col space-y-1">
+                <div class="flex items-end">
+                    <div
+                        class="w-6 h-6 bg-medical-100 rounded-full flex items-center justify-center text-xs text-medical-600 font-bold mr-2 mb-1">
+                        AI</div>
+                    <div
+                        class="bg-white px-4 py-2 rounded-2xl rounded-bl-sm shadow-sm text-sm text-slate-700 max-w-[85%] border border-slate-100">
+                        Hello! I'm here to support your wellness journey. How are you feeling today?
+                    </div>
+                </div>
+            </div>
+            <!-- Dynamic Messages will be appended here -->
+        </div>
+
+        <!-- Suggestions -->
+        <div id="chat-suggestions" class="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
+            <!-- Dynamic suggestions via JS -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-white border-t border-slate-100">
+            <form onsubmit="handleChatSubmit(event)" class="relative">
+                <input type="text" id="chat-input"
+                    class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:border-medical-500 focus:ring-1 focus:ring-medical-500 transition-all placeholder-slate-400"
+                    placeholder="Type your message..." autocomplete="off">
+                <button type="submit"
+                    class="absolute right-2 top-1.5 p-1.5 bg-medical-600 text-white rounded-full hover:bg-medical-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </form>
+            <p class="text-center text-[10px] text-slate-400 mt-2">AI can make mistakes. Not medical advice.</p>
+        </div>
+    </div>
+
+    <!-- Floating Button -->
+    <button onclick="toggleChat()"
+        class="w-14 h-14 bg-gradient-to-r from-medical-600 to-teal-500 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-medical-500">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+            </path>
+        </svg>
+        <!-- Notification Dot -->
+        <span
+            class="absolute top-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-red-400 animate-ping"></span>
+    </button>
+</div>

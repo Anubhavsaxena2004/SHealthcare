@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, send_file, jsonify
 from app import db
-from app.models import User, Result
+from app.models import User, Result, Doctor
 from app.services import heart_model, diabetes_model, get_preventive_measures, generate_pdf_report
 from app.chatbot_service import healthcare_chatbot
 from datetime import datetime
@@ -339,3 +339,22 @@ def chat_suggestions(user_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@main.route('/precautions')
+def precautions():
+    return render_template('precautions.html')
+
+@main.route('/doctors')
+def doctors():
+    search = request.args.get('search', '')
+    if search:
+        doctors = Doctor.query.filter((Doctor.name.contains(search)) | (Doctor.specialization.contains(search))).all()
+    else:
+        doctors = Doctor.query.all()
+    return render_template('doctors.html', doctors=doctors, search=search)
+
+@main.route('/government-support')
+def government_schemes():
+    return render_template('government_schemes.html')
+
+

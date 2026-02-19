@@ -21,6 +21,9 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
+    # Import models to ensure they are registered with SQLAlchemy
+    from app import models
+
     # Register Blueprints
     from app.routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
