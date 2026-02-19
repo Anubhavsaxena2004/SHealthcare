@@ -186,7 +186,7 @@
     <!-- Healthcare AI Chatbot Widget -->
     {% if session.get('user_id') %}
     {% include 'components/chat_widget.html' %}
-    <script src="{{ url_for('static', filename='js/chat.js') }}?v=2"></script>
+    <script type="module" src="{{ url_for('static', filename='js/chat.js') }}?v=3"></script>
     {% endif %}
 
 </body>
