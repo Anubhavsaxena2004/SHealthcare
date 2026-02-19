@@ -33,6 +33,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% if session.get('user_id') %}
+    <meta name="user-id" content="{{ session.get('user_id') }}">
+    {% endif %}
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: all 0.3s ease; }
@@ -79,6 +82,11 @@
             </p>
         </div>
     </footer>
+
+    <!-- Healthcare AI Chatbot Widget -->
+    {% if session.get('user_id') %}
+    {% include 'chatbot.html' %}
+    {% endif %}
 
 </body>
 </html>

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from app import db
 from app.models import User, Result
 from app.services import heart_model, diabetes_model, get_preventive_measures, generate_pdf_report
+from app.chatbot_service import healthcare_chatbot
 from datetime import datetime
 
 main = Blueprint('main', __name__)
@@ -181,3 +182,160 @@ def download_report(result_id):
 def logout():
     session.clear()
     return redirect(url_for('main.login'))
+
+
+# ==================== HEALTHCARE CHATBOT ENDPOINTS ====================
+
+@main.route('/api/health-chat', methods=['POST'])
+def health_chat():
+    """
+    Healthcare-specific chatbot endpoint
+    Handles medical questions, risk explanations, preventive guidance
+    
+    Request:
+    {
+        "message": "Explain my diabetes risk",
+        "user_id": 1
+    }
+    
+    Response:
+    {
+        "type": "health_response",
+        "reply": "Your diabetes risk is...",
+        "suggested_actions": ["Download Report", "Schedule Consultation"],
+        "disclaimer": "This is educational guidance..."
+    }
+    """
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id') or session.get('user_id')
+        message = data.get('message', '').strip()
+
+        if not user_id:
+            return jsonify({
+                "type": "error",
+                "reply": "User not authenticated. Please log in first.",
+                "suggested_actions": ["Login", "Signup"]
+            }), 401
+
+        if not message:
+            return jsonify({
+                "type": "error",
+                "reply": "Please provide a message.",
+                "suggested_actions": ["Try asking about your risk", "Ask prevention tips"]
+            }), 400
+
+        # Get user context
+        context = healthcare_chatbot.get_conversation_context(user_id)
+
+        # Process healthcare chat
+        response = healthcare_chatbot.process_health_chat(user_id, message)
+
+        # If no specialized response, try general chat
+        if response is None:
+            response = healthcare_chatbot.process_general_chat(message)
+
+        # Add context
+        response['user_context'] = context
+        response['timestamp'] = datetime.utcnow().isoformat()
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({
+            "type": "error",
+            "reply": f"An error occurred: {str(e)}",
+            "suggested_actions": ["Try again", "Contact support"]
+        }), 500
+
+
+@main.route('/api/general-chat', methods=['POST'])
+def general_chat():
+    """
+    General knowledge chatbot endpoint (OpenAI fallback)
+    Handles non-medical questions with healthcare awareness
+    
+    Request:
+    {
+        "message": "What is machine learning?",
+        "user_id": 1  (optional)
+    }
+    
+    Response:
+    {
+        "type": "ai_response",
+        "reply": "Machine learning is...",
+        "source": "OpenAI GPT-4o-mini",
+        "disclaimer": "This is educational guidance..."
+    }
+    """
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
+        user_id = data.get('user_id') or session.get('user_id')
+
+        if not message:
+            return jsonify({
+                "type": "error",
+                "reply": "Please provide a message.",
+                "suggested_actions": ["Ask a question", "Try a healthcare question"]
+            }), 400
+
+        # Check if it's actually a healthcare-related question
+        intent = healthcare_chatbot.detect_intent(message)
+        if intent != "general":
+            # Route to healthcare endpoint instead
+            if user_id:
+                response = healthcare_chatbot.process_health_chat(user_id, message)
+                if response is None:
+                    response = healthcare_chatbot.process_general_chat(message)
+            else:
+                response = healthcare_chatbot.process_general_chat(message)
+        else:
+            # Process purely general query
+            response = healthcare_chatbot.process_general_chat(message)
+
+        response['timestamp'] = datetime.utcnow().isoformat()
+        if user_id:
+            response['user_context'] = healthcare_chatbot.get_conversation_context(user_id)
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({
+            "type": "error",
+            "reply": f"An error occurred: {str(e)}",
+            "suggested_actions": ["Try again", "Contact support"]
+        }), 500
+
+
+@main.route('/api/chat-suggestions/<int:user_id>', methods=['GET'])
+def chat_suggestions(user_id):
+    """
+    Get suggested chat prompts based on user's latest assessment
+    Helps users know what they can ask the chatbot
+    """
+    try:
+        if session.get('user_id') != user_id:
+            return jsonify({"error": "Unauthorized"}), 403
+
+        context = healthcare_chatbot.get_conversation_context(user_id)
+        suggestions = [
+            "Explain my last result",
+            "How can I improve my score?",
+            "What causes high diabetes risk?",
+            "Prevention tips for heart disease",
+            "Go to dashboard"
+        ]
+
+        if context.get('last_disease'):
+            suggestions.insert(0, f"Tell me about my {context['last_disease']} risk")
+            suggestions.insert(1, f"How to prevent {context['last_disease']}?")
+
+        return jsonify({
+            "suggestions": suggestions,
+            "context": context
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
