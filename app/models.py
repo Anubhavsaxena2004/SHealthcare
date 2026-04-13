@@ -12,7 +12,7 @@ class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     disease = db.Column(db.String(50), nullable=False)
-    prediction = db.Column(db.String(10), nullable=False)
+    prediction = db.Column(db.String(50), nullable=False)
     probability = db.Column(db.Float, nullable=True)
     disease_selected = db.Column(db.String(50), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
