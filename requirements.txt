@@ -7,6 +7,6 @@ pandas
 python-dotenv
 psycopg2-binary
 reportlab
-google-generativeai
+google-genai
 gunicorn
 requests

@@ -54,5 +54,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Expose port
 EXPOSE 5000
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "run:app"]
+# Run the application with optimized settings for memory efficiency
+# --preload loads models once in the master process, sharing memory across workers (Copy-on-Write)
+# WEB_CONCURRENCY is set by Render based on instance size (defaulting to 1 for free/starter tier)
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers ${WEB_CONCURRENCY:-1} --preload --timeout 120 --access-logfile - --error-logfile - run:app"]

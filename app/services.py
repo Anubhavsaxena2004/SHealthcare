@@ -7,16 +7,18 @@ import numpy as np
 import math
 
 try:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai import types
 except Exception:  # pragma: no cover
     genai = None
+
 from flask import current_app
 
-# Configure Gemini
-def configure_genai():
+def get_ai_client():
     api_key = os.getenv('GEMINI_API_KEY')
     if genai and api_key:
-        genai.configure(api_key=api_key)
+        return genai.Client(api_key=api_key)
+    return None
 
 # System Prompt for Wellness Assistant
 SYSTEM_PROMPT = """
@@ -32,26 +34,20 @@ Traits:
 
 def get_ai_response(user_message, history=[]):
     try:
-        if not genai:
-            return "AI service is not installed/configured on this server. Please try again later."
-        configure_genai()
-        model = genai.GenerativeModel('gemini-pro')
+        client = get_ai_client()
+        if not client:
+            return "AI service is not configured on this server. Please try again later."
         
-        # Construct chat history for Gemini
-        chat = model.start_chat(history=[])
-        
-        # Add system context (simulated via first message if system prompt not supported directly in this lib version cleanly as distinct role)
-        # Or better, just append to the message for a one-shot or maintain history structure
-        # tailored for the specific library version. usage of History in gemini python lib:
-        # history=[{'role': 'user', 'parts': ['msg']}, {'role': 'model', 'parts': ['msg']}]
-        
-        formatted_history = []
-        # Prepend system instruction as a user message context if needed, or rely on model instruction if available
-        # For simplicity in this stateless wrapper:
-        
-        full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {user_message}"
-        
-        response = model.generate_content(full_prompt)
+        # Use the newer, faster, and more efficient gemini-1.5-flash model
+        # The new SDK supports system_instruction directly in generate_content or Client config
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=user_message,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.7,
+            )
+        )
         return response.text
     except Exception as e:
         print(f"Gemini API Error: {e}")
