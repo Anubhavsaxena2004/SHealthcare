@@ -10,14 +10,21 @@ from datetime import datetime
 
 class HealthcareChatbot:
     def __init__(self):
-        self.api_key = os.getenv('GEMINI_API_KEY')
+        # Support both naming conventions for the API key
+        self.api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
         if genai and self.api_key:
-            self.client = genai.Client(api_key=self.api_key)
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+            except Exception as e:
+                print(f"Error initializing Chatbot Gemini Client: {e}")
+                self.client = None
         else:
             if not genai:
                 print("Warning: google-genai not installed; chatbot AI disabled.")
             else:
-                print("Warning: GEMINI_API_KEY not found.")
+                # Only show warning if BOTH are missing
+                if not os.getenv('GEMINI_API_KEY') and not os.getenv('GOOGLE_API_KEY'):
+                    print("Warning: Neither GEMINI_API_KEY nor GOOGLE_API_KEY found.")
             self.client = None
 
     def get_conversation_context(self, user_id):

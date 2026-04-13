@@ -15,9 +15,13 @@ except Exception:  # pragma: no cover
 from flask import current_app
 
 def get_ai_client():
-    api_key = os.getenv('GEMINI_API_KEY')
+    # Support both naming conventions for the API key
+    api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
     if genai and api_key:
-        return genai.Client(api_key=api_key)
+        try:
+            return genai.Client(api_key=api_key)
+        except Exception as e:
+            print(f"Error initializing Gemini Client: {e}")
     return None
 
 # System Prompt for Wellness Assistant

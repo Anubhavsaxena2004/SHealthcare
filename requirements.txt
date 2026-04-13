@@ -2,7 +2,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 joblib
-scikit-learn
+scikit-learn==1.6.1
 pandas
 python-dotenv
 psycopg2-binary

@@ -32,6 +32,9 @@ def create_app():
     if not env_db or env_db.strip() == "" or env_db.strip() == "sqlite:///users.db":
         app.config['SQLALCHEMY_DATABASE_URI'] = default_sqlite_uri
     else:
+        # Render provides postgres:// urls, but SQLAlchemy 1.4+ requires postgresql://
+        if env_db.startswith("postgres://"):
+            env_db = env_db.replace("postgres://", "postgresql://", 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = env_db
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
