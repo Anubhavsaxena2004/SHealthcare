@@ -1,6 +1,7 @@
 import os
 try:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai import types
 except Exception:  # pragma: no cover
     genai = None
 from app.models import Result, User
@@ -11,14 +12,13 @@ class HealthcareChatbot:
     def __init__(self):
         self.api_key = os.getenv('GEMINI_API_KEY')
         if genai and self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            self.client = genai.Client(api_key=self.api_key)
         else:
             if not genai:
-                print("Warning: google-generativeai not installed; chatbot AI disabled.")
+                print("Warning: google-genai not installed; chatbot AI disabled.")
             else:
                 print("Warning: GEMINI_API_KEY not found.")
-            self.model = None
+            self.client = None
 
     def get_conversation_context(self, user_id):
         """Retrieve relevant medical context for the user."""
@@ -107,12 +107,12 @@ class HealthcareChatbot:
         if hardcoded:
             return hardcoded
 
-        if not self.model:
+        if not self.client:
             return {"reply": "AI service unavailable (Check API Key).", "type": "error"}
 
         context = self.get_conversation_context(user_id)
         
-        system_prompt = f"""
+        system_instruction = f"""
         You are a Calm AI Wellness Assistant in a healthcare app.
         User Context: {context}
         
@@ -121,18 +121,25 @@ class HealthcareChatbot:
         - Use the user's recent health data if relevant.
         - If they have high risk, be gentle but firm about seeing a doctor.
         - Keep answers concise (under 100 words).
-        - Disclaimer: You update educational info, not medical diagnosis.
+        - Disclaimer: You provide educational info, not medical diagnosis.
         """
         
         try:
-            full_prompt = f"{system_prompt}\n\nUser: {message}\nAssistant:"
-            response = self.model.generate_content(full_prompt)
+            response = self.client.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.7,
+                )
+            )
             return {
                 "reply": response.text,
                 "type": "health_response",
                 "suggested_actions": ["View Dashboard", "Download Report"]
             }
         except Exception as e:
+            print(f"Chatbot API Error: {e}")
             return {"reply": "I'm having trouble connecting. Please try again.", "type": "error"}
 
     def process_general_chat(self, message):
