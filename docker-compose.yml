@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: shealthcare-db
+    environment:
+      POSTGRES_DB: shealthcare
+      POSTGRES_USER: shealthcare_user
+      POSTGRES_PASSWORD: shealthcare_password_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shealthcare_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shealthcare_network
+
+  # Flask Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shealthcare-app
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: run.py
+      DEBUG: "True"
+      DATABASE_URL: postgresql://shealthcare_user:shealthcare_password_dev@db:5432/shealthcare
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-your-google-api-key-here}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-dev-secret-key}
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: flask run --host=0.0.0.0
+    networks:
+      - shealthcare_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  shealthcare_network:
+    driver: bridge

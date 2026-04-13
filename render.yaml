@@ -1,0 +1,77 @@
+# Render Infrastructure Definition
+# Deploy your entire SHealthcare stack with this configuration
+# 
+# Usage on Render:
+# 1. Go to https://render.com/blueprints
+# 2. Connect GitHub repo
+# 3. Upload this blueprint or point to the raw GitHub URL
+# 4. Click "Deploy"
+
+services:
+  - type: web
+    name: shealthcare-app
+    runtime: docker
+    region: virginia  # Change to your preferred region
+    plan: starter  # Change to free for testing
+    
+    # Build configuration
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""  # Render auto-detects Dockerfile
+    startCommand: gunicorn --bind 0.0.0.0:5000 --workers 4 --timeout 120 run:app
+    
+    # Environment variables
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: WORKERS
+        value: "4"
+      - key: TIMEOUT
+        value: "120"
+      - key: FLASK_SECRET_KEY
+        sync: false  # Requires manual input for security
+      - key: GOOGLE_API_KEY
+        sync: false  # Requires manual input
+      - key: DATABASE_URL
+        fromDatabase:
+          name: shealthcare-db
+          property: connectionString
+    
+    # Health check configuration
+    healthCheckPath: /
+    
+    # Scaling configuration
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetMemoryPercent: 80
+      targetCPUPercent: 80
+    
+    # Disk configuration
+    disk:
+      name: app-disk
+      sizeGB: 1
+      mountPath: /app/data
+
+  - type: pserv
+    name: shealthcare-db
+    ipAllowList: []  # Render sets this automatically
+    plan: starter  # Minimum: starter, for Free tier development use free
+    postgresVersion: "15"
+    
+    # Database configuration
+    initialDatabase: shealthcare
+    user: shealthcare_user
+    
+    # Backup configuration
+    enableBackup: true
+    backupRetention: 7
+
+envVarGroups:
+  - name: production
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DEBUG
+        value: "False"

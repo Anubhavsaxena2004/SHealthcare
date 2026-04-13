@@ -8,3 +8,5 @@ python-dotenv
 psycopg2-binary
 reportlab
 google-generativeai
+gunicorn
+requests
